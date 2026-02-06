@@ -77,11 +77,10 @@ namespace Auto7z_Rev
 
             // 获取新的 DPI 缩放因子
             float newScale = e.DeviceDpiNew / 96.0f;
-            Bounds = e.SuggestedRectangle;
             Parameters.systemScale = newScale;
 
             INITIALIZE_MAINFORM_SIZE(newScale);
-            UPDATE_MENUSTRIP_LAYOUT(newScale);
+            UPDATE_MENUSTRIP_LAYOUT(MenuStrip, newScale);
 
             // 强制重绘界面以适应新 DPI 下的字体和控件
             Invalidate();
@@ -518,6 +517,7 @@ namespace Auto7z_Rev
             Size = new Size((int)(baseWidth * scale), (int)(baseHeight * scale));
 
             INITIALIZE_TABLE_LAYOUT_PANEL_PIXEL();
+            INITIALIZE_UI_FONT_SIZE();
         }
 
         private void UPDATE_MIN_MAX_SIZE(float scale)
@@ -570,7 +570,24 @@ namespace Auto7z_Rev
             panel.RowStyles[num].Height = fontSize;
         }
 
-        private void UPDATE_MENUSTRIP_LAYOUT(float scale)
+        private void INITIALIZE_UI_FONT_SIZE()
+        {
+            SET_FONT_SIZE(MenuStrip, Font.Size);
+            SET_FONT_SIZE(LabelSize, Font.Size);
+            SET_FONT_SIZE(LabelUnit, Font.Size);
+            SET_FONT_SIZE(LabelFormat, Font.Size);
+            SET_FONT_SIZE(CheckBoxZstd, Font.Size);
+            SET_FONT_SIZE(LabelPassword, Font.Size);
+            SET_FONT_SIZE(CheckBoxAutoSave, Font.Size);
+            SET_FONT_SIZE(ButtonConfig, Font.Size);
+        }
+
+        private void SET_FONT_SIZE(Control obj, float fontSize)// 使用dynamic或Control绕过编译时的类型检查，直到运行时才解析
+        {
+            obj.Font = new Font(obj.Font.FontFamily, fontSize, obj.Font.Style, GraphicsUnit.Point);
+        }
+
+        private void UPDATE_MENUSTRIP_LAYOUT(MenuStrip MenuStrip, float scale)
         {
             if (MenuStrip != null)
             {
@@ -590,6 +607,8 @@ namespace Auto7z_Rev
 
             if (item is ToolStripMenuItem menuItem)
             {
+                menuItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+
                 foreach (ToolStripItem subItem in menuItem.DropDownItems)
                 {
                     // 递归调用自身

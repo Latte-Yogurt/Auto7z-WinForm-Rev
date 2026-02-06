@@ -60,10 +60,10 @@ namespace Auto7z_Rev
             // 
             this.TextBoxPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.TextBoxPassword, 3);
-            this.TextBoxPassword.Location = new System.Drawing.Point(180, 289);
+            this.TextBoxPassword.Location = new System.Drawing.Point(179, 289);
             this.TextBoxPassword.Name = "TextBoxPassword";
             this.TextBoxPassword.Size = new System.Drawing.Size(156, 31);
-            this.TextBoxPassword.TabIndex = 9;
+            this.TextBoxPassword.TabIndex = 4;
             this.TextBoxPassword.TextChanged += new System.EventHandler(this.TEXTBOX_PASSWORD_TEXT_CHANGED);
             // 
             // CheckBoxAutoSave
@@ -73,7 +73,7 @@ namespace Auto7z_Rev
             this.CheckBoxAutoSave.Location = new System.Drawing.Point(13, 397);
             this.CheckBoxAutoSave.Name = "CheckBoxAutoSave";
             this.CheckBoxAutoSave.Size = new System.Drawing.Size(234, 28);
-            this.CheckBoxAutoSave.TabIndex = 11;
+            this.CheckBoxAutoSave.TabIndex = 5;
             this.CheckBoxAutoSave.Text = "程序关闭时自动保存配置";
             this.CheckBoxAutoSave.UseVisualStyleBackColor = true;
             this.CheckBoxAutoSave.CheckedChanged += new System.EventHandler(this.CHECKBOX_AUTOSAVE_CHECKED_CHANGED);
@@ -82,7 +82,7 @@ namespace Auto7z_Rev
             // 
             this.LabelPassword.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.LabelPassword.AutoSize = true;
-            this.LabelPassword.Location = new System.Drawing.Point(88, 293);
+            this.LabelPassword.Location = new System.Drawing.Point(87, 293);
             this.LabelPassword.Name = "LabelPassword";
             this.LabelPassword.Size = new System.Drawing.Size(86, 24);
             this.LabelPassword.TabIndex = 4;
@@ -93,7 +93,7 @@ namespace Auto7z_Rev
             // 
             this.LabelFormat.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.LabelFormat.AutoSize = true;
-            this.LabelFormat.Location = new System.Drawing.Point(88, 211);
+            this.LabelFormat.Location = new System.Drawing.Point(87, 211);
             this.LabelFormat.Name = "LabelFormat";
             this.LabelFormat.Size = new System.Drawing.Size(86, 24);
             this.LabelFormat.TabIndex = 2;
@@ -107,20 +107,20 @@ namespace Auto7z_Rev
             this.ComboBoxFormat.Cursor = System.Windows.Forms.Cursors.Default;
             this.ComboBoxFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ComboBoxFormat.FormattingEnabled = true;
-            this.ComboBoxFormat.Location = new System.Drawing.Point(180, 210);
+            this.ComboBoxFormat.Location = new System.Drawing.Point(179, 207);
             this.ComboBoxFormat.Name = "ComboBoxFormat";
             this.ComboBoxFormat.Size = new System.Drawing.Size(156, 32);
-            this.ComboBoxFormat.TabIndex = 7;
+            this.ComboBoxFormat.TabIndex = 2;
             this.ComboBoxFormat.SelectedIndexChanged += new System.EventHandler(this.COMBOBOX_FORMAT_SELECTED_INDEX_CHANGED);
             // 
             // CheckBoxZstd
             // 
             this.CheckBoxZstd.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.CheckBoxZstd.AutoSize = true;
-            this.CheckBoxZstd.Location = new System.Drawing.Point(342, 209);
+            this.CheckBoxZstd.Location = new System.Drawing.Point(341, 209);
             this.CheckBoxZstd.Name = "CheckBoxZstd";
             this.CheckBoxZstd.Size = new System.Drawing.Size(72, 28);
-            this.CheckBoxZstd.TabIndex = 8;
+            this.CheckBoxZstd.TabIndex = 3;
             this.CheckBoxZstd.Text = "zstd";
             this.CheckBoxZstd.UseVisualStyleBackColor = true;
             this.CheckBoxZstd.CheckedChanged += new System.EventHandler(this.CHECKBOX_ZSTD_CHECKED_CHANGED);
@@ -129,7 +129,7 @@ namespace Auto7z_Rev
             // 
             this.LabelUnit.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.LabelUnit.AutoSize = true;
-            this.LabelUnit.Location = new System.Drawing.Point(342, 129);
+            this.LabelUnit.Location = new System.Drawing.Point(341, 129);
             this.LabelUnit.Name = "LabelUnit";
             this.LabelUnit.Size = new System.Drawing.Size(39, 24);
             this.LabelUnit.TabIndex = 6;
@@ -141,10 +141,10 @@ namespace Auto7z_Rev
             this.TextBoxSize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.TextBoxSize, 3);
             this.TextBoxSize.ImeMode = System.Windows.Forms.ImeMode.Disable;
-            this.TextBoxSize.Location = new System.Drawing.Point(180, 125);
+            this.TextBoxSize.Location = new System.Drawing.Point(179, 125);
             this.TextBoxSize.Name = "TextBoxSize";
             this.TextBoxSize.Size = new System.Drawing.Size(156, 31);
-            this.TextBoxSize.TabIndex = 5;
+            this.TextBoxSize.TabIndex = 1;
             this.TextBoxSize.TextChanged += new System.EventHandler(this.TEXTBOX_SIZE_TEXT_CHANGED);
             this.TextBoxSize.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TEXTBOX_SIZE_KEYPRESS);
             // 
@@ -152,7 +152,7 @@ namespace Auto7z_Rev
             // 
             this.LabelSize.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.LabelSize.AutoSize = true;
-            this.LabelSize.Location = new System.Drawing.Point(88, 129);
+            this.LabelSize.Location = new System.Drawing.Point(87, 129);
             this.LabelSize.Name = "LabelSize";
             this.LabelSize.Size = new System.Drawing.Size(86, 24);
             this.LabelSize.TabIndex = 1;
@@ -163,11 +163,11 @@ namespace Auto7z_Rev
             // 
             this.ButtonConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.ButtonConfig, 3);
-            this.ButtonConfig.Location = new System.Drawing.Point(288, 388);
+            this.ButtonConfig.Location = new System.Drawing.Point(287, 388);
             this.ButtonConfig.Name = "ButtonConfig";
             this.tableLayoutPanel.SetRowSpan(this.ButtonConfig, 2);
             this.ButtonConfig.Size = new System.Drawing.Size(169, 45);
-            this.ButtonConfig.TabIndex = 10;
+            this.ButtonConfig.TabIndex = 6;
             this.ButtonConfig.Text = "保存配置";
             this.ButtonConfig.UseVisualStyleBackColor = true;
             this.ButtonConfig.Click += new System.EventHandler(this.BUTTON_CONFIG_CLICK);
@@ -183,7 +183,7 @@ namespace Auto7z_Rev
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5F));
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 16F));
+            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 18F));
             this.tableLayoutPanel.Controls.Add(this.MenuStrip, 0, 0);
             this.tableLayoutPanel.Controls.Add(this.CheckBoxAutoSave, 1, 9);
             this.tableLayoutPanel.Controls.Add(this.LabelUnit, 6, 3);
@@ -211,7 +211,7 @@ namespace Auto7z_Rev
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 5F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(478, 444);
-            this.tableLayoutPanel.TabIndex = 2;
+            this.tableLayoutPanel.TabIndex = 7;
             // 
             // MenuStrip
             // 
@@ -228,8 +228,8 @@ namespace Auto7z_Rev
             this.AboutMenu});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
-            this.MenuStrip.Size = new System.Drawing.Size(478, 32);
-            this.MenuStrip.TabIndex = 14;
+            this.MenuStrip.Size = new System.Drawing.Size(478, 36);
+            this.MenuStrip.TabIndex = 0;
             this.MenuStrip.Text = "menuStrip1";
             // 
             // LanguageMenu
@@ -237,7 +237,7 @@ namespace Auto7z_Rev
             this.LanguageMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.LanguageMenuSelect});
             this.LanguageMenu.Name = "LanguageMenu";
-            this.LanguageMenu.Size = new System.Drawing.Size(62, 28);
+            this.LanguageMenu.Size = new System.Drawing.Size(62, 32);
             this.LanguageMenu.Text = "语言";
             // 
             // LanguageMenuSelect
@@ -247,27 +247,27 @@ namespace Auto7z_Rev
             this.ZHTWItem,
             this.ENUSItem});
             this.LanguageMenuSelect.Name = "LanguageMenuSelect";
-            this.LanguageMenuSelect.Size = new System.Drawing.Size(182, 34);
+            this.LanguageMenuSelect.Size = new System.Drawing.Size(270, 34);
             this.LanguageMenuSelect.Text = "选择语言";
             // 
             // ZHCNItem
             // 
             this.ZHCNItem.Name = "ZHCNItem";
-            this.ZHCNItem.Size = new System.Drawing.Size(182, 34);
+            this.ZHCNItem.Size = new System.Drawing.Size(270, 34);
             this.ZHCNItem.Text = "简体中文";
             this.ZHCNItem.Click += new System.EventHandler(this.LANGUAGE_MENU_SELECT_zhCN_CLICK);
             // 
             // ZHTWItem
             // 
             this.ZHTWItem.Name = "ZHTWItem";
-            this.ZHTWItem.Size = new System.Drawing.Size(182, 34);
+            this.ZHTWItem.Size = new System.Drawing.Size(270, 34);
             this.ZHTWItem.Text = "繁體中文";
             this.ZHTWItem.Click += new System.EventHandler(this.LANGUAGE_MENU_SELECT_zhTW_CLICK);
             // 
             // ENUSItem
             // 
             this.ENUSItem.Name = "ENUSItem";
-            this.ENUSItem.Size = new System.Drawing.Size(182, 34);
+            this.ENUSItem.Size = new System.Drawing.Size(270, 34);
             this.ENUSItem.Text = "English";
             this.ENUSItem.Click += new System.EventHandler(this.LANGUAGE_MENU_SELECT_enUS_CLICK);
             // 
@@ -277,7 +277,7 @@ namespace Auto7z_Rev
             this.OptionMenuDisableVolume,
             this.OptionMenuGenerateMD5});
             this.OptionMenu.Name = "OptionMenu";
-            this.OptionMenu.Size = new System.Drawing.Size(62, 28);
+            this.OptionMenu.Size = new System.Drawing.Size(62, 32);
             this.OptionMenu.Text = "选项";
             // 
             // OptionMenuDisableVolume
@@ -301,7 +301,7 @@ namespace Auto7z_Rev
             this.AboutMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.AboutAuto7zRev});
             this.AboutMenu.Name = "AboutMenu";
-            this.AboutMenu.Size = new System.Drawing.Size(62, 28);
+            this.AboutMenu.Size = new System.Drawing.Size(62, 32);
             this.AboutMenu.Text = "关于";
             // 
             // AboutAuto7zRev
