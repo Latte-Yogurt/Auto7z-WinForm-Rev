@@ -574,10 +574,13 @@ namespace Auto7z_Rev
         {
             SET_FONT_SIZE(MenuStrip, Font.Size);
             SET_FONT_SIZE(LabelSize, Font.Size);
-            SET_FONT_SIZE(LabelUnit, Font.Size);
+            SET_FONT_SIZE(TextBoxSize, Font.Size);
             SET_FONT_SIZE(LabelFormat, Font.Size);
+            SET_FONT_SIZE(ComboBoxFormat, Font.Size);
+            SET_FONT_SIZE(LabelUnit, Font.Size);
             SET_FONT_SIZE(CheckBoxZstd, Font.Size);
             SET_FONT_SIZE(LabelPassword, Font.Size);
+            SET_FONT_SIZE(TextBoxPassword, Font.Size);
             SET_FONT_SIZE(CheckBoxAutoSave, Font.Size);
             SET_FONT_SIZE(ButtonConfig, Font.Size);
         }
