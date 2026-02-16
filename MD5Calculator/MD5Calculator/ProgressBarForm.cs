@@ -44,7 +44,6 @@ namespace MD5Calculator
 
 			// 获取新的 DPI 缩放因子
 			float newScale = e.DeviceDpiNew / 96.0f;
-			Bounds = e.SuggestedRectangle;
 			systemScale = newScale;
 
 			INITIALIZE_MAINFORM_SIZE(newScale);
@@ -382,14 +381,6 @@ namespace MD5Calculator
 			}
 		}
 
-		private void CREATE_RESOURCE_FOLDER(string newFolderPath)
-		{
-			if (!Directory.Exists(newFolderPath))
-			{
-				Directory.CreateDirectory(newFolderPath);
-			}
-		}
-
 		private void CREATE_APP_CONFIG()
 		{
 			string resourceName = "MD5Calculator.Resources.MD5Calculator.exe.config";
@@ -412,7 +403,8 @@ namespace MD5Calculator
 			Size = new Size((int)(baseWidth * scale), (int)(baseHeight * scale));
 
 			INITIALIZE_TABLE_LAYOUT_PANEL_PIXEL();
-		}
+            INITIALIZE_UI_FONT_SIZE();
+        }
 
 		private void UPDATE_MIN_MAX_SIZE(float scale)
 		{
@@ -454,7 +446,18 @@ namespace MD5Calculator
 			panel.RowStyles[num].Height = fontSize;
 		}
 
-		private void InitializeLanguageTexts()
+        private void INITIALIZE_UI_FONT_SIZE()
+        {
+            SET_FONT_SIZE(LabelCalculating, Font.Size);
+            SET_FONT_SIZE(LabelPercent, Font.Size);
+        }
+
+        private void SET_FONT_SIZE(Control obj, float fontSize)// 使用dynamic或Control绕过编译时的类型检查，直到运行时才解析
+        {
+            obj.Font = new Font(obj.Font.FontFamily, fontSize, obj.Font.Style, GraphicsUnit.Point);
+        }
+
+        private void InitializeLanguageTexts()
 		{
 			languageTexts = new Dictionary<string, Dictionary<string, string>>
 			{
