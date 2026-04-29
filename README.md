@@ -2,6 +2,9 @@ English | [中文](https://github.com/Latte-Yogurt/Auto7z_Rev/blob/main/README_C
 # Project Name
 Auto7z_GUI
 
+# Attention
+This project is now in LTS (Long-Term Support) mode. No further functional updates will be provided unless major bugs occur. Please head to **[Auto7z_WPF](https://github.com/Latte-Yogurt/Auto7z_WPF)** for the latest technical support.
+
 ## Index
 - [Feature](#Feature)
 - [HowToUse](#HowToUse)
