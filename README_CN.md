@@ -3,7 +3,7 @@
 Auto7z_GUI
 
 # 注意
-本项目已进入LTS模式，如无影响使用的重大bug将不再进行功能性更新，移步至 **[Auto7z_WPF](https://github.com/Latte-Yogurt/Auto7z_WPF)** 获取最新项目的技术支持的英文
+本项目已进入LTS模式，如无影响使用的重大bug将不再进行功能性更新，移步至 **[Auto7z_WPF](https://github.com/Latte-Yogurt/Auto7z_WPF)** 获取最新项目的技术支持
 
 ## 目录
 - [特性](#特性)
