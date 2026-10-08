@@ -24,7 +24,7 @@ namespace Auto7z_Rev
             public readonly static string extractPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             public readonly static string xmlPath = Path.Combine(workPath, "Auto7z_Rev.xml");
             public readonly static string appConfigPath = Path.Combine(workPath, "Auto7z_Rev.exe.config");
-            public readonly static string auto7zPath = Path.Combine(extractPath, "Auto7z_Components");
+            public readonly static string auto7zPath = Path.Combine(extractPath, "Auto7z_Rev");
             public readonly static string sevenZPath = Path.Combine(auto7zPath, "7z");
             public readonly static string md5CalculatorPath = Path.Combine(auto7zPath, "md5Calculator.exe");
             public readonly static string MD5CalculatorAppConfigPath = Path.Combine(Parameters.auto7zPath, "MD5Calculator.exe.config");
@@ -624,43 +624,29 @@ namespace Auto7z_Rev
         #region Check Parameters
         private bool CHECK_PATH_READ_WRITE(string path, out Exception error)
         {
-            error = null; // 初始化异常为 null
-
+            error = null;
+            string checkFilePath = Path.Combine(
+                path, "~testFile_" + Guid.NewGuid().ToString("N") + ".tmp");
             try
             {
-                // 检查可写性
-                string checkFilePath = Path.Combine(path, "Directory_checker");
-
-                // 尝试写入
-                using (FileStream testFile = File.Create(checkFilePath))
+                using (var fs = new FileStream(checkFilePath, FileMode.CreateNew,
+                                               FileAccess.Write, FileShare.None))
                 {
-                    // 写入一些数据（随意）
-                    byte[] info = new UTF8Encoding(true).GetBytes("dir check");
-                    testFile.Write(info, 0, info.Length);
+                    fs.WriteByte(0);
                 }
-
-                // 尝试读取
-                using (FileStream testFile = File.OpenRead(checkFilePath))
+                using (var fs = new FileStream(checkFilePath, FileMode.Open,
+                                               FileAccess.Read, FileShare.Read))
                 {
-                    // 尝试读取数据
-                    byte[] buffer = new byte[1024];
-                    testFile.Read(buffer, 0, buffer.Length);
+                    fs.ReadByte();
                 }
-
-                // 删除测试文件
-                File.Delete(checkFilePath);
-
-                return true; // 两者都成功
+                return true;
             }
-            catch (UnauthorizedAccessException unauthorizedEx)
+            catch (UnauthorizedAccessException ex) { error = ex; return false; }
+            catch (Exception ex) { error = ex; return false; }
+            finally
             {
-                error = unauthorizedEx;
-                return false; // 不具备权限
-            }
-            catch (Exception otherEx)
-            {
-                error = otherEx;
-                return false; // 发生其他异常
+                try { if (File.Exists(checkFilePath)) File.Delete(checkFilePath); }
+                catch { /* 清理失败不影响判定 */ }
             }
         }
 
@@ -738,7 +724,6 @@ namespace Auto7z_Rev
                 && Directory.Exists(Parameters.langPath)
                 && File.Exists(Parameters.zhCNPath)
                 && File.Exists(Parameters.zhTWPath);
-
         }
 
         private bool IS_PROCESS_RUNNING(string processName)
