@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,7 +25,7 @@ namespace Auto7z_Rev
             public readonly static string extractPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             public readonly static string xmlPath = Path.Combine(workPath, "Auto7z_Rev.xml");
             public readonly static string appConfigPath = Path.Combine(workPath, "Auto7z_Rev.exe.config");
-            public readonly static string auto7zPath = Path.Combine(extractPath, "Auto7z_Components");
+            public readonly static string auto7zPath = Path.Combine(extractPath, "Auto7z_Rev");
             public readonly static string sevenZPath = Path.Combine(auto7zPath, "7z");
             public readonly static string md5CalculatorPath = Path.Combine(auto7zPath, "md5Calculator.exe");
             public readonly static string MD5CalculatorAppConfigPath = Path.Combine(Parameters.auto7zPath, "MD5Calculator.exe.config");
@@ -138,10 +139,9 @@ namespace Auto7z_Rev
             {
                 if (args.Length > 1)
                 {
-                    Parameters.packedOneFile=QUESTION_PACKED_IN_ONE_FILE();
+                    Parameters.packedOneFile = QUESTION_PACKED_IN_ONE_FILE();
                     Parameters.isHandleSeparately = !Parameters.packedOneFile;
                 }
-
                 else
                 {
                     Parameters.isHandleSeparately = false;
@@ -248,7 +248,6 @@ namespace Auto7z_Rev
                             {
                                 DELETE_FILES_AND_FOLDER_WHILE_UNFINISHED();
                             }
-
                             else
                             {
                                 DELETE_TEMP_TAR(Parameters.newFolderPath);
@@ -264,7 +263,6 @@ namespace Auto7z_Rev
                         DELETE_EXTRACT_RESOURCE();
                     }
                 }
-
                 else
                 {
                     var processedFileNamesMap = new Dictionary<string, string>();
@@ -558,7 +556,7 @@ namespace Auto7z_Rev
             SET_ROW_SIZE(tableLayoutPanel, 10, SizeType.Absolute, 5f);
         }
 
-        private void SET_COLUMN_SIZE(TableLayoutPanel panel,int num,SizeType type,float fontSize)
+        private void SET_COLUMN_SIZE(TableLayoutPanel panel, int num, SizeType type, float fontSize)
         {
             panel.ColumnStyles[num].SizeType = type;
             panel.ColumnStyles[num].Width = fontSize;
@@ -624,43 +622,29 @@ namespace Auto7z_Rev
         #region Check Parameters
         private bool CHECK_PATH_READ_WRITE(string path, out Exception error)
         {
-            error = null; // 初始化异常为 null
-
+            error = null;
+            string checkFilePath = Path.Combine(
+                path, "~testFile_" + Guid.NewGuid().ToString("N") + ".tmp");
             try
             {
-                // 检查可写性
-                string checkFilePath = Path.Combine(path, "Directory_checker");
-
-                // 尝试写入
-                using (FileStream testFile = File.Create(checkFilePath))
+                using (var fs = new FileStream(checkFilePath, FileMode.CreateNew,
+                                               FileAccess.Write, FileShare.None))
                 {
-                    // 写入一些数据（随意）
-                    byte[] info = new UTF8Encoding(true).GetBytes("dir check");
-                    testFile.Write(info, 0, info.Length);
+                    fs.WriteByte(0);
                 }
-
-                // 尝试读取
-                using (FileStream testFile = File.OpenRead(checkFilePath))
+                using (var fs = new FileStream(checkFilePath, FileMode.Open,
+                                               FileAccess.Read, FileShare.Read))
                 {
-                    // 尝试读取数据
-                    byte[] buffer = new byte[1024];
-                    testFile.Read(buffer, 0, buffer.Length);
+                    fs.ReadByte();
                 }
-
-                // 删除测试文件
-                File.Delete(checkFilePath);
-
-                return true; // 两者都成功
+                return true;
             }
-            catch (UnauthorizedAccessException unauthorizedEx)
+            catch (UnauthorizedAccessException ex) { error = ex; return false; }
+            catch (Exception ex) { error = ex; return false; }
+            finally
             {
-                error = unauthorizedEx;
-                return false; // 不具备权限
-            }
-            catch (Exception otherEx)
-            {
-                error = otherEx;
-                return false; // 发生其他异常
+                try { if (File.Exists(checkFilePath)) File.Delete(checkFilePath); }
+                catch { /* 清理失败不影响判定 */ }
             }
         }
 
@@ -738,7 +722,6 @@ namespace Auto7z_Rev
                 && Directory.Exists(Parameters.langPath)
                 && File.Exists(Parameters.zhCNPath)
                 && File.Exists(Parameters.zhTWPath);
-
         }
 
         private bool IS_PROCESS_RUNNING(string processName)
@@ -755,7 +738,6 @@ namespace Auto7z_Rev
                         return true; // 找到了一个正在运行的进程，并且路径正确
                     }
                 }
-
                 catch (Exception ex)
                 {
                     ERROR_EXCEPTION_MESSAGE(ex);
@@ -793,7 +775,6 @@ namespace Auto7z_Rev
                             return false; // 文件未被占用
                         }
                     }
-
                     else
                     {
                         string[] paths = GET_DIRECTOR_CONTENTS(file);
@@ -900,7 +881,6 @@ namespace Auto7z_Rev
                     }
                 }
             }
-
             catch (Exception ex)
             {
                 error = ex;
@@ -1003,63 +983,63 @@ namespace Auto7z_Rev
                 process.WaitForExit(); // 等待进程完成
                 return process.ExitCode == 0; // 如果ExitCode为0，则返回true（表示成功）
             }
-
             catch (Exception ex)
             {
                 ERROR_EXCEPTION_MESSAGE(ex);
                 return false; // 发生异常时返回false
             }
-
             finally
             {
                 process.Dispose(); // 清理资源
             }
         }
 
-        private bool CREATE_NEW_FOLDER()
+        /// <summary>
+        /// 生成一个基于时间戳与哈希的安全文件夹名，避免名称冲突和非法字符。
+        /// </summary>
+        private static string GenerateSafeFolderName()
         {
-            string folderCodeName = null;
-            string nowTime = DateTime.Now.ToString("HH-mm-ss");
+            // UtcNow.Ticks 是 64 位整数，精度到 100ns，同一秒内多次调用也不会重复
+            string seed = DateTime.UtcNow.Ticks.ToString();
 
-            switch (Parameters.currentLanguage)
+            byte[] bytes = Encoding.UTF8.GetBytes(seed);
+            using (var sha256 = SHA256.Create())
             {
-                case "zh-CN":
-                    folderCodeName = $"压缩文件_{nowTime}";
-                    break;
-                case "zh-TW":
-                    folderCodeName = $"壓縮檔_{nowTime}";
-                    break;
-                case "en-US":
-                    folderCodeName = $"Compressed File_{nowTime}";
-                    break;
+                string base64 = Convert.ToBase64String(sha256.ComputeHash(bytes));
+                return base64.Replace('/', '_').Replace('+', '-').TrimEnd('=');
             }
+        }
 
-            Parameters.newFolderPath = $"{Parameters.directoryPath}\\{Parameters.fileName}_{folderCodeName}";
+        /// <summary>
+        /// 创建本次压缩任务的输出文件夹。文件夹名由原始文件名加安全哈希串构成，
+        /// 既方便辨认又不会重复。
+        /// </summary>
+        private bool CreateCompressOutputFolder()
+        {
+            string safeSuffix = GenerateSafeFolderName();
+            string folderName = $"{Parameters.fileName}_{safeSuffix}";
+            Parameters.newFolderPath = Path.Combine(Parameters.directoryPath, folderName);
 
-            if (!Directory.Exists(Parameters.newFolderPath))
-            {
-                try
-                {
-                    Directory.CreateDirectory(Parameters.newFolderPath);
-                    return true;
-                }
-
-                catch (Exception ex)
-                {
-                    ERROR_CREATE_FOLDER_FAILED(ex);
-                    return false;
-                }
-            }
-
-            else
+            if (Directory.Exists(Parameters.newFolderPath))
             {
                 return true;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(Parameters.newFolderPath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ERROR_CREATE_FOLDER_FAILED(ex);
+                return false;
             }
         }
 
         private string GENERATE_COMMAND(string[] paths)
         {
-            if (!CREATE_NEW_FOLDER())
+            if (!CreateCompressOutputFolder())
             {
                 return null;
             }
@@ -1068,7 +1048,6 @@ namespace Auto7z_Rev
             {
                 return GENERATE_SINGLE_FILE_COMMAND(paths[0]);
             }
-
             else
             {
                 return GENERATE_MULTIPLE_FILES_COMMAND(paths);
@@ -1213,7 +1192,6 @@ namespace Auto7z_Rev
             {
                 return size > targetSize && targetSize > 0 && !OptionMenuDisableVolume.Checked;
             }
-
             else
             {
                 return size > targetSize && targetSize > 0 && !OptionMenuDisableVolume.Checked && !CheckBoxZstd.Checked;
@@ -1356,7 +1334,6 @@ namespace Auto7z_Rev
 
                 return true;
             }
-
             else if (Directory.Exists(fullPath))
             {
                 Parameters.folderSize = GET_FOLDER_SIZE(fullPath);
@@ -1369,7 +1346,6 @@ namespace Auto7z_Rev
 
                 return true;
             }
-
             else if (!File.Exists(fullPath) || !Directory.Exists(fullPath))
             {
                 bool canReadWrite = CHECK_PATH_READ_WRITE(dirertory, out Exception noPermissionEx);
@@ -1408,14 +1384,12 @@ namespace Auto7z_Rev
                     {
                         Parameters.fileSizes += Parameters.fileSize;
                     }
-
                     else
                     {
                         fileList.Remove(fullPath);
                         WARNING_REMOVE_ELEMENT(name, fullPath);
                     }
                 }
-
                 else if (Directory.Exists(fullPath))
                 {
                     Parameters.folderSize = GET_FOLDER_SIZE(fullPath);
@@ -1424,14 +1398,12 @@ namespace Auto7z_Rev
                     {
                         Parameters.folderSizes += Parameters.folderSize;
                     }
-
                     else
                     {
                         fileList.Remove(fullPath);
                         WARNING_REMOVE_ELEMENT(name, fullPath);
                     }
                 }
-
                 else if (!File.Exists(fullPath) || !Directory.Exists(fullPath))
                 {
                     bool canReadWrite = CHECK_PATH_READ_WRITE(dirertory, out Exception noPermissionEx);
@@ -1471,7 +1443,6 @@ namespace Auto7z_Rev
 
                 return fileSizeMiB;
             }
-
             else
             {
                 return -1;
@@ -1498,7 +1469,6 @@ namespace Auto7z_Rev
 
                 return folderSizeMiB;
             }
-
             else
             {
                 return -1;
@@ -1515,7 +1485,6 @@ namespace Auto7z_Rev
                 {
                     File.WriteAllText(configFilePath, string.Empty);
                 }
-
                 catch (Exception ex)
                 {
                     ERROR_EXCEPTION_MESSAGE(ex);
@@ -1563,7 +1532,6 @@ namespace Auto7z_Rev
                         new XElement("SevenZUsageCount", "0")
                     );
                 }
-
                 else
                 {
                     defaultConfig = new XElement("Configuration",
@@ -1586,7 +1554,6 @@ namespace Auto7z_Rev
                     );
                 }
             }
-
             else
             {
                 defaultConfig = new XElement("Configuration",
@@ -1638,7 +1605,6 @@ namespace Auto7z_Rev
 
                 xdoc.Save(filePath); // 保存文件
             }
-
             catch (Exception)
             {
                 CREATE_DEFAULT_CONFIG(Parameters.xmlPath);
@@ -1673,7 +1639,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -1683,7 +1648,6 @@ namespace Auto7z_Rev
                 {
                     return currentCulture.Name;
                 }
-
                 else
                 {
                     return "en-US";
@@ -1709,7 +1673,6 @@ namespace Auto7z_Rev
 
                     return currentCulture.Name;
                 }
-
                 else
                 {
                     XElement newNode = new XElement("Language", "en-US");
@@ -1733,7 +1696,6 @@ namespace Auto7z_Rev
                 {
                     return currentCulture.Name;
                 }
-
                 else
                 {
                     return "en-US";
@@ -1774,7 +1736,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -1787,7 +1748,6 @@ namespace Auto7z_Rev
 
             if (widthNode == null)
             {
-
                 XElement newNode = new XElement("ScreenWidth", newWidth);
 
                 xdoc.Root.Add(newNode);
@@ -1839,7 +1799,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -1852,7 +1811,6 @@ namespace Auto7z_Rev
 
             if (heightNode == null)
             {
-
                 XElement newNode = new XElement("ScreenHeight", newHeight);
 
                 xdoc.Root.Add(newNode);
@@ -1902,7 +1860,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -1915,7 +1872,6 @@ namespace Auto7z_Rev
 
             if (scaleNode == null)
             {
-
                 XElement newNode = new XElement("SystemScale", Parameters.systemScale);
 
                 xdoc.Root.Add(newNode);
@@ -1969,7 +1925,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -1982,7 +1937,6 @@ namespace Auto7z_Rev
 
             if (locationXNode == null)
             {
-
                 XElement newNode = new XElement("LocationX", newLocationX);
 
                 xdoc.Root.Add(newNode);
@@ -2029,7 +1983,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2086,7 +2039,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2143,7 +2095,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2201,7 +2152,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2247,7 +2197,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2310,7 +2259,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2373,7 +2321,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2436,7 +2383,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2499,7 +2445,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2562,7 +2507,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2625,7 +2569,6 @@ namespace Auto7z_Rev
                 // 加载 XML 文档
                 xdoc = XDocument.Load(configFilePath);
             }
-
             catch (XmlException)
             {
                 // 如果加载失败，创建新的默认配置文件并返回默认值
@@ -2638,7 +2581,6 @@ namespace Auto7z_Rev
 
             if (sevenZUsageCountNode == null)
             {
-
                 XElement newNode = new XElement("SevenZUsageCount", "0");
 
                 xdoc.Root.Add(newNode);
@@ -2706,7 +2648,6 @@ namespace Auto7z_Rev
             {
                 TextBoxPassword.Enabled = false;
             }
-
             else
             {
                 TextBoxPassword.Enabled = true;
@@ -2781,7 +2722,6 @@ namespace Auto7z_Rev
             {
                 isPack = true;
             }
-
             else
             {
                 isPack = false;
@@ -2823,7 +2763,6 @@ namespace Auto7z_Rev
                 {
                     Parameters.currentLanguage = currentCulture.Name;
                 }
-
                 else
                 {
                     Parameters.currentLanguage = "en-US";
@@ -3162,7 +3101,6 @@ namespace Auto7z_Rev
                 Parameters.disableVolume = true;
                 TextBoxSize.Enabled = false;
             }
-
             else
             {
                 using (Stream stream = assembly.GetManifestResourceStream(unCheckedIconName))
@@ -3206,7 +3144,6 @@ namespace Auto7z_Rev
 
                 Parameters.generateMd5 = true;
             }
-
             else
             {
                 using (Stream stream = assembly.GetManifestResourceStream(unCheckedIconName))
@@ -3246,7 +3183,6 @@ namespace Auto7z_Rev
                     CheckBoxZstd.Checked = true;
                 }
             }
-
             else
             {
                 CheckBoxZstd.Visible = false;
@@ -3262,7 +3198,6 @@ namespace Auto7z_Rev
             {
                 Parameters.zstd = true;
             }
-
             else
             {
                 Parameters.zstd = false;
@@ -3276,7 +3211,6 @@ namespace Auto7z_Rev
             {
                 Parameters.autoSave = true;
             }
-
             else
             {
                 Parameters.autoSave = false;
@@ -3313,7 +3247,6 @@ namespace Auto7z_Rev
 
                 Location = new Point(locationX, locationY);
             }
-
             else
             {
                 locationX = Screen.FromControl(this).Bounds.Width / 2 - Size.Width / 2;
@@ -3338,7 +3271,6 @@ namespace Auto7z_Rev
             {
                 UPDATE_CONFIG($"{Parameters.xmlPath}", "AutoSave", "False");
             }
-
             else
             {
                 SAVE_CONFIG();
